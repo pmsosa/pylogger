@@ -9,7 +9,7 @@
 
 <hr>
 
-**Read the story behind why I built this program in [my blog](TODO: ADD LINK).**
+###Read this program's postmortem at [my blog](http://konukoii.com/blog/2016/09/27/capture-the-keys-chapter-2-pylogger/).###
 
 <h3>Requirements</h3>
  
