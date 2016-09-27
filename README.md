@@ -49,4 +49,4 @@ While the program is running you can activate special triggers that perform diff
 - **Zip logs:** Provides simplicity and more stealth
 - **Data exfiltration:** Right now the only way for data exfiltration is through the dump command, which requires physical access to the machine. There are a lot of interesting and different ways to do this. Since the purpose of this program was to keylog my own computer, I have not added any data exfiltration methods.
 - **Arguments in a .conf file** Not sure if I even want to do this. I like having everything in one executable. However it would be nice to be able to change values once the executable has been made.
-- **More interesting methods? If you have any ideas feel free to add an issue. **
+- **More interesting methods? If you have any ideas feel free to add an issue.**
